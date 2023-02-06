@@ -12,7 +12,7 @@ public class FirstController {
     @GetMapping("/info")
     public String printInfo(){
         return
-                "<h1> Книга Рецептов</h1>"+
+                "<h1> style=\"text-align: center\" Книга Рецептов</h1>"+
                         "<h4> Список рецептов с их ID(номер в списке):</h4>"+
                         "<ol><li>Сырники из творога." +
                         "<li>Салат из красной фасоли с творожным сыром, красным луком и сезонным салатом."+

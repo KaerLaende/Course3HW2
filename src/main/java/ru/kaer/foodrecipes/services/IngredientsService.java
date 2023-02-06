@@ -1,9 +1,10 @@
 package ru.kaer.foodrecipes.services;
 
 import ru.kaer.foodrecipes.model.Ingredient;
-import ru.kaer.foodrecipes.model.Recipes;
 
-public interface IngredientsMapService {
+import java.util.Map;
+
+public interface IngredientsService {
 
 
     Ingredient addIngredient(Ingredient ingredient);
@@ -11,4 +12,10 @@ public interface IngredientsMapService {
     Ingredient getIngredient(Long id);
 
     Ingredient createNewIngredient(String name, int count, String measureUnit);
+
+    Map<?,?> getAllIngredients();
+
+    Ingredient editIngredient(Long id, Ingredient ingredient);
+
+    boolean deleteIngredient(Long id);
 }

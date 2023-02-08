@@ -17,14 +17,14 @@ public class IngredientsController {
 
     // добавление ингридиента в Мар
     @PostMapping
-    public ResponseEntity addIngredient(@RequestBody Ingredient ingredient) {
+    public ResponseEntity<Ingredient> addIngredient(@RequestBody Ingredient ingredient) {
         Ingredient createdIngredient = ingredientsService.addIngredient(ingredient);
         return ResponseEntity.ok(ingredient);
     }
 
     //получение ингридиента по ID
     @GetMapping("{ingredientId}")
-    public ResponseEntity getIngredient(@PathVariable Long ingredientId) {
+    public ResponseEntity<Ingredient> getIngredient(@PathVariable Long ingredientId) {
 
         Ingredient ingredient = ingredientsService.getIngredient(ingredientId);
         if (ingredient == null) {
@@ -33,16 +33,19 @@ public class IngredientsController {
         return ResponseEntity.ok(ingredient);
     }
 
+    //TODO     Исправить способ получение новых параметров
     //создание ингридиента
     @GetMapping("{ingredientName}/{count}/{measureUnit}")
     @ResponseBody
-    public ResponseEntity<?> getIngredientFromPath(@RequestParam String param1, @RequestParam Integer param2, @RequestParam String param3) {
+    public ResponseEntity<Ingredient> getIngredientFromPath(@RequestParam String param1, @RequestParam Integer param2, @RequestParam String param3) {
 
-        if(param1 == null || param2 <=0|| param3==null) {
-            return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.BAD_REQUEST); //IDEA подсказала - (ResponseEntity<?>)
+        if(param2 <=0) {
+            ResponseEntity.status(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().build();
         } else {
-             ingredientsService.createNewIngredient(param1, param2, param3);
-            return (ResponseEntity<?>) ResponseEntity.status(HttpStatus.OK); // Иначе ругалось на возвращаемое значение, не понял почему...
+            ingredientsService.createNewIngredient(param1, param2, param3);
+            ResponseEntity.status(HttpStatus.OK);
+            return ResponseEntity.ok().build();
         }
     }
 

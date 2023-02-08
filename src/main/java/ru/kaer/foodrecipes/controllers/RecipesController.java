@@ -16,7 +16,7 @@ public class RecipesController {
     }
 
     @PostMapping
-    public ResponseEntity addRecipes(@RequestBody Recipes recipes) {
+    public ResponseEntity<Recipes> addRecipes(@RequestBody Recipes recipes) {
         Recipes createdRecipes = recipesService.addRecipes(recipes);
         return ResponseEntity.ok(recipes);
     }

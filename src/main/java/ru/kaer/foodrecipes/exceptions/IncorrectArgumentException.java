@@ -1,6 +1,6 @@
 package ru.kaer.foodrecipes.exceptions;
 
-public class IncorrectArgumentException extends Exception {
+public class IncorrectArgumentException extends RuntimeException {
     public IncorrectArgumentException() {
     }
 

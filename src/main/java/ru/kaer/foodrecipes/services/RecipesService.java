@@ -11,7 +11,7 @@ public interface RecipesService {
 
     Recipes getRecipes(Long id);
 
-    Map<?,?> getAllRecipes();
+    Map<Long, Recipes> getAllRecipes();
 
     Recipes editRecipes(Long id, Recipes recipes);
 

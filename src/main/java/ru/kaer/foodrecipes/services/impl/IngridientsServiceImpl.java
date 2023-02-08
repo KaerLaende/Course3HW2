@@ -9,7 +9,7 @@ import java.util.TreeMap;
 
 @Service
 public class IngridientsServiceImpl implements IngredientsService {
-    Map<Long, Ingredient> ingredientMap = new TreeMap<>();
+    private final Map<Long, Ingredient> ingredientMap = new TreeMap<>();
     private static long lastId = 0;
 
 
@@ -30,7 +30,7 @@ public class IngridientsServiceImpl implements IngredientsService {
         return  newIngredient;
     }
     @Override
-    public Map<?,?> getAllIngredients(){
+    public Map<Long, Ingredient> getAllIngredients(){
         return ingredientMap;
     }
 

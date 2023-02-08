@@ -6,12 +6,14 @@ import org.springframework.web.bind.annotation.*;
 import ru.kaer.foodrecipes.model.Recipes;
 import ru.kaer.foodrecipes.services.RecipesService;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/recipes")
 public class RecipesController {
-    private RecipesService recipesService;
+    private final RecipesService recipesService;
 
-    public RecipesController(@Qualifier("recipesServiceImpl") RecipesService recipesService) {
+    public RecipesController(RecipesService recipesService) {
         this.recipesService = recipesService;
     }
 
@@ -22,7 +24,7 @@ public class RecipesController {
     }
 
     @GetMapping("{recipesId}")
-    public ResponseEntity<?> getRecipes(@PathVariable Long recipesId) {
+    public ResponseEntity<Recipes> getRecipes(@PathVariable Long recipesId) {
 
         Recipes recipes = recipesService.getRecipes(recipesId);
         if (recipes == null) {
@@ -32,7 +34,7 @@ public class RecipesController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> getAllRecipes() {
+    public ResponseEntity<Map> getAllRecipes() {
         return ResponseEntity.ok(recipesService.getAllRecipes());
     }
 

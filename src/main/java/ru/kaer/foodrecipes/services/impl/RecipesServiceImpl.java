@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.TreeMap;
 @Service
 public class RecipesServiceImpl implements RecipesService {
-    Map<Long, Recipes> allRecipesMap = new TreeMap<>();
+    private final Map<Long, Recipes> allRecipesMap = new TreeMap<>();
     private static long lastId = 0;
 
     @Override
@@ -22,7 +22,7 @@ public class RecipesServiceImpl implements RecipesService {
         return null;
     }
     @Override
-    public Map<?,?> getAllRecipes(){
+    public Map<Long, Recipes> getAllRecipes(){
         return allRecipesMap;
     }
 

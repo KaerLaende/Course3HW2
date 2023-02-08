@@ -13,7 +13,7 @@ public interface IngredientsService {
 
     Ingredient createNewIngredient(String name, int count, String measureUnit);
 
-    Map<?,?> getAllIngredients();
+    Map<Long, Ingredient> getAllIngredients();
 
     Ingredient editIngredient(Long id, Ingredient ingredient);
 

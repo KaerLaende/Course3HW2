@@ -6,10 +6,12 @@ import org.springframework.web.bind.annotation.*;
 import ru.kaer.foodrecipes.model.Ingredient;
 import ru.kaer.foodrecipes.services.IngredientsService;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/ingridients")
 public class IngredientsController {
-    private IngredientsService ingredientsService;
+    private final IngredientsService ingredientsService;
 
     public IngredientsController(IngredientsService ingredientsService) {
         this.ingredientsService = ingredientsService;
@@ -51,7 +53,7 @@ public class IngredientsController {
 
     //показать все ингредиенты
     @GetMapping()
-    public ResponseEntity<?> getAllIngredients() {
+    public ResponseEntity<Map> getAllIngredients() {
         return ResponseEntity.ok(ingredientsService.getAllIngredients());
     }
 

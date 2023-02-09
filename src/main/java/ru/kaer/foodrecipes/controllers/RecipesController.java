@@ -1,5 +1,9 @@
 package ru.kaer.foodrecipes.controllers;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +14,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/recipes")
+@Tag(name= "Рецепты", description = "CRUD - операции по работе с рецептами.")
 public class RecipesController {
     private final RecipesService recipesService;
 
@@ -18,12 +23,30 @@ public class RecipesController {
     }
 
     @PostMapping
+    @Operation(
+            summary = "Добавление рецепта в Мар"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "рецепт был успешно добавлен"
+            )
+    })
     public ResponseEntity<Recipes> addRecipes(@RequestBody Recipes recipes) {
         Recipes createdRecipes = recipesService.addRecipes(recipes);
         return ResponseEntity.ok(recipes);
     }
 
     @GetMapping("{recipesId}")
+    @Operation(
+            summary = "Получение рецепта по его ID"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "рецепт был успешно найден"
+            )
+    })
     public ResponseEntity<Recipes> getRecipes(@PathVariable Long recipesId) {
 
         Recipes recipes = recipesService.getRecipes(recipesId);
@@ -34,11 +57,30 @@ public class RecipesController {
     }
 
     @GetMapping()
+    @Operation(
+            summary = "Получение всех имеющихся рецептов"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "отображенны все рецепты"
+            )
+    })
     public ResponseEntity<Map> getAllRecipes() {
         return ResponseEntity.ok(recipesService.getAllRecipes());
     }
 
     @PutMapping("{id}")
+    @Operation(
+            summary = "изменить существующий рецепт",
+            description = "введите ID номер рецепта, которого хотите изменить"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "рецепт изменен"
+            )
+    })
     public ResponseEntity<Recipes> editRecipes(@PathVariable long id, @RequestBody Recipes recipes) {
         if (recipes == null) {
             return ResponseEntity.notFound().build();
@@ -48,6 +90,16 @@ public class RecipesController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "удалить существующий рецепт",
+            description = "введите ID номер рецепта, который хотите удалить"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "рецепт удален"
+            )
+    })
     public ResponseEntity<Void> deleteRecipes(@PathVariable long id) {
         if (recipesService.deleteRecipes(id)) {
             return ResponseEntity.ok().build();

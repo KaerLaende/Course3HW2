@@ -3,13 +3,14 @@ package ru.kaer.foodrecipes.services;
 import ru.kaer.foodrecipes.model.Recipes;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface RecipesService {
 
 
     Recipes addRecipes(Recipes recipes);
 
-    Recipes getRecipes(Long id);
+    Optional<Recipes> getRecipes(Long id);
 
     Map<Long, Recipes> getAllRecipes();
 

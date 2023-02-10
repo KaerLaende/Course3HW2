@@ -1,25 +1,36 @@
 package ru.kaer.foodrecipes.services.impl;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.kaer.foodrecipes.exceptions.ValidationException;
+import ru.kaer.foodrecipes.model.Ingredient;
 import ru.kaer.foodrecipes.model.Recipes;
 import ru.kaer.foodrecipes.services.RecipesService;
+import ru.kaer.foodrecipes.services.ValidationService;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 @Service
+@RequiredArgsConstructor
 public class RecipesServiceImpl implements RecipesService {
     private final Map<Long, Recipes> allRecipesMap = new TreeMap<>();
     private static long lastId = 0;
+    private final ValidationService validationService;
 
     @Override
     public Recipes addRecipes(Recipes recipes) {
-        allRecipesMap.put(++lastId, recipes);
-        return recipes;
+        if (!validationService.validate(recipes)){
+            throw new ValidationException(recipes.toString());
+        }
+        return allRecipesMap.put( ++lastId, recipes);
     }
+
     @Override
-    public Recipes getRecipes(Long id){
-        allRecipesMap.get(id);
-        return null;
+    public Optional<Recipes> getRecipes(Long id) {
+
+        return Optional.ofNullable(allRecipesMap.get(id));
     }
     @Override
     public Map<Long, Recipes> getAllRecipes(){

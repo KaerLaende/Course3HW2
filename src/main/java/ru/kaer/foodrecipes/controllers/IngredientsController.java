@@ -52,16 +52,12 @@ public class IngredientsController {
     })
     public ResponseEntity<Ingredient> getIngredient(@PathVariable Long ingredientId) {
 
-        Ingredient ingredient = ingredientsService.getIngredient(ingredientId);
-        if (ingredient == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(ingredient);
+        return ResponseEntity.of(ingredientsService.getIngredient(ingredientId));
     }
 
 
     //создание ингридиента
-    @GetMapping("/new")
+    @PostMapping("/new")
     @ResponseBody
     @Operation(
             summary = "Создание нового ингредиента",
@@ -96,12 +92,12 @@ public class IngredientsController {
                     description = "ингредиенты показаны"
             )
     })
-    public ResponseEntity<Map> getAllIngredients() {
+    public ResponseEntity<Map<Long,Ingredient>> getAllIngredients() {
         return ResponseEntity.ok(ingredientsService.getAllIngredients());
     }
 
     // заменить/исправить конкретный ингредиент
-    @PutMapping("/edit/{id}")
+    @PutMapping("{id}")
     @Operation(
             summary = "заменить/исправить конкретный ингредиент"
     )
@@ -119,7 +115,7 @@ public class IngredientsController {
         return ResponseEntity.ok(ingredient);
     }
     // удалить ингредиент
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("{id}")
     @Operation(
             summary = "удалить ингредиент",
             description = "Укажите ID ингредиента, которого вы хотите удалить"

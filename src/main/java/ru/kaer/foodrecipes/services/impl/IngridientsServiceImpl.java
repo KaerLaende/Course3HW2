@@ -1,27 +1,37 @@
 package ru.kaer.foodrecipes.services.impl;
 
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.kaer.foodrecipes.exceptions.ValidationException;
 import ru.kaer.foodrecipes.model.Ingredient;
 import ru.kaer.foodrecipes.services.IngredientsService;
+import ru.kaer.foodrecipes.services.ValidationService;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 @Service
+@RequiredArgsConstructor
 public class IngridientsServiceImpl implements IngredientsService {
     private final Map<Long, Ingredient> ingredientMap = new TreeMap<>();
     private static long lastId = 0;
+    private final ValidationService validationService;
 
 
     @Override
     public Ingredient addIngredient(Ingredient ingredient) {
-        ingredientMap.put( ++lastId, ingredient);
-       return ingredient;
+        if (!validationService.validate(ingredient)){
+        throw new ValidationException(ingredient.toString());
+        }
+        return ingredientMap.put( ++lastId, ingredient);
     }
 
     @Override
-    public Ingredient getIngredient(Long id) {
-        return ingredientMap.get(id);
+    public Optional<Ingredient> getIngredient(Long id) {
+
+        return Optional.ofNullable(ingredientMap.get(id));
     }
 
     @Override
@@ -36,11 +46,10 @@ public class IngridientsServiceImpl implements IngredientsService {
 
     @Override
     public Ingredient editIngredient(Long id, Ingredient ingredient){
-        if(ingredientMap.containsKey(id)){
-            ingredientMap.put(id, ingredient);
-            return ingredient;
+        if(!validationService.validate(ingredient)){
+            throw new ValidationException(ingredient.toString());
         }
-        return null;
+        return  ingredientMap.replace(id, ingredient);
     }
     @Override
     public boolean deleteIngredient(Long id){

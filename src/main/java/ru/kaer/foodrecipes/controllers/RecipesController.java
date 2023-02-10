@@ -48,12 +48,8 @@ public class RecipesController {
             )
     })
     public ResponseEntity<Recipes> getRecipes(@PathVariable Long recipesId) {
+            return ResponseEntity.of(recipesService.getRecipes(recipesId));
 
-        Recipes recipes = recipesService.getRecipes(recipesId);
-        if (recipes == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(recipes);
     }
 
     @GetMapping()
@@ -66,7 +62,7 @@ public class RecipesController {
                     description = "отображенны все рецепты"
             )
     })
-    public ResponseEntity<Map> getAllRecipes() {
+    public ResponseEntity<Map<Long,Recipes>> getAllRecipes() {
         return ResponseEntity.ok(recipesService.getAllRecipes());
     }
 
@@ -89,7 +85,7 @@ public class RecipesController {
         return ResponseEntity.ok(recipes);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("{id}")
     @Operation(
             summary = "удалить существующий рецепт",
             description = "введите ID номер рецепта, который хотите удалить"

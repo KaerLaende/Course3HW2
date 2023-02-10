@@ -1,30 +1,38 @@
 package ru.kaer.foodrecipes.services.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import org.springframework.asm.TypeReference;
 import org.springframework.stereotype.Service;
 import ru.kaer.foodrecipes.exceptions.ValidationException;
-import ru.kaer.foodrecipes.model.Ingredient;
 import ru.kaer.foodrecipes.model.Recipes;
+import ru.kaer.foodrecipes.services.FileService;
 import ru.kaer.foodrecipes.services.RecipesService;
 import ru.kaer.foodrecipes.services.ValidationService;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 @Service
-@RequiredArgsConstructor
+@Data
+@AllArgsConstructor
 public class RecipesServiceImpl implements RecipesService {
-    private final Map<Long, Recipes> allRecipesMap = new TreeMap<>();
+    private static TreeMap<Long, Recipes> allRecipesMap = new TreeMap<>();
     private static long lastId = 0;
     private final ValidationService validationService;
+    private final FileService fileService;
 
     @Override
     public Recipes addRecipes(Recipes recipes) {
         if (!validationService.validate(recipes)){
             throw new ValidationException(recipes.toString());
         }
-        return allRecipesMap.put( ++lastId, recipes);
+        allRecipesMap.put( ++lastId, recipes);
+        saveToFile();
+        return recipes;
     }
 
     @Override
@@ -41,6 +49,7 @@ public class RecipesServiceImpl implements RecipesService {
     public Recipes editRecipes(Long id, Recipes recipes){
         if(allRecipesMap.containsKey(id)){
             allRecipesMap.put(id, recipes);
+            saveToFile();
             return recipes;
         }
         return null;
@@ -52,6 +61,34 @@ public class RecipesServiceImpl implements RecipesService {
             return true;
         }
         return false;
+    }
+    @Override
+    public void saveToFile(){
+        try {
+            String json = new ObjectMapper().writeValueAsString(allRecipesMap);
+            fileService.saveRecipesToFile(json);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+//TODO TypeReference подчеркивает красным (Type 'org.springframework.asm.TypeReference' does not have type parameters) HELP!?
+    @Override
+    public void readFromFile(){
+       try {
+           String json = fileService.readRecipesFromFile();
+           allRecipesMap = new ObjectMapper().readValue(json, new TypeReference<TreeMap<Long, Recipes>>() {
+           });
+       } catch (JsonProcessingException e) {
+           throw new RuntimeException(e);
+       }
+    }
+    /**
+     * Загрузка данных на старте приложения
+     */
+    @PostConstruct
+    private void init() {
+      readFromFile();
     }
 
 

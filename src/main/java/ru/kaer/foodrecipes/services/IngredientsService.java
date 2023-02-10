@@ -19,4 +19,10 @@ public interface IngredientsService {
     Ingredient editIngredient(Long id, Ingredient ingredient);
 
     boolean deleteIngredient(Long id);
+
+    void saveToFile();
+
+    //TODO TypeReference подчеркивает красным (Type 'org.springframework.asm.TypeReference' does not have type parameters) HELP!?
+
+    void readFromFile();
 }

@@ -1,6 +1,7 @@
 package ru.kaer.foodrecipes.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -32,11 +33,15 @@ public class IngredientsController {
             @ApiResponse(
                     responseCode = "200",
                     description = "ингредиент был успешно добавлен"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Не правильные параметры ингридиента"
             )
-    })
+    }
+    )
     public ResponseEntity<Ingredient> addIngredient(@RequestBody Ingredient ingredient) {
-        Ingredient createdIngredient = ingredientsService.addIngredient(ingredient);
-        return ResponseEntity.ok(ingredient);
+        return ResponseEntity.ok(ingredientsService.addIngredient(ingredient));
     }
 
     //получение ингридиента по ID
@@ -48,8 +53,13 @@ public class IngredientsController {
             @ApiResponse(
                     responseCode = "200",
                     description = "ингредиент был найден"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Ингредиент не найден"
             )
-    })
+    }
+    )
     public ResponseEntity<Ingredient> getIngredient(@PathVariable Long ingredientId) {
 
         return ResponseEntity.of(ingredientsService.getIngredient(ingredientId));
@@ -58,7 +68,6 @@ public class IngredientsController {
 
     //создание ингридиента
     @PostMapping("/new")
-    @ResponseBody
     @Operation(
             summary = "Создание нового ингредиента",
             description = "ингредиенты состоят из: наименования, колличества и единицы измерения"
@@ -105,8 +114,13 @@ public class IngredientsController {
             @ApiResponse(
                     responseCode = "200",
                     description = "ингредиент исправлен"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Ингредиент не найден"
             )
-    })
+    }
+    )
     public ResponseEntity<Ingredient> editIngredient(@PathVariable long id,@RequestBody Ingredient ingredient){
         if (ingredient == null) {
             return ResponseEntity.notFound().build();
@@ -120,12 +134,22 @@ public class IngredientsController {
             summary = "удалить ингредиент",
             description = "Укажите ID ингредиента, которого вы хотите удалить"
     )
+    @Parameter(
+            name = "ingredientID",
+            description = "ID необходимого ингредиента",
+            example = "0"
+    )
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
                     description = "ингредиент удален"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Удаляемый ингридиент не найден"
             )
-    })
+    }
+    )
     public ResponseEntity<Void> deleteIngredient(@PathVariable long id){
         if(ingredientsService.deleteIngredient(id)){
             return ResponseEntity.ok().build();

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.asm.TypeReference;
+import com.fasterxml.jackson.core.type.TypeReference;
 import org.springframework.stereotype.Service;
 import ru.kaer.foodrecipes.exceptions.ValidationException;
 import ru.kaer.foodrecipes.model.Recipes;
@@ -72,15 +72,14 @@ public class RecipesServiceImpl implements RecipesService {
         }
     }
 
-//TODO TypeReference подчеркивает красным (Type 'org.springframework.asm.TypeReference' does not have type parameters) HELP!?
     @Override
     public void readFromFile(){
        try {
            String json = fileService.readRecipesFromFile();
            allRecipesMap = new ObjectMapper().readValue(json, new TypeReference<TreeMap<Long, Recipes>>() {
-           });
+           });//Идея подсказывает что: Аргумент явного типа TreeMap<Long, Recipes> можно заменить на пустые<>? оставить?
        } catch (JsonProcessingException e) {
-           throw new RuntimeException(e);
+           e.printStackTrace();
        }
     }
     /**

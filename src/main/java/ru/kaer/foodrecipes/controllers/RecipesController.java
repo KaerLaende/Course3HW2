@@ -30,11 +30,15 @@ public class RecipesController {
             @ApiResponse(
                     responseCode = "200",
                     description = "рецепт был успешно добавлен"
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Не правильные параметры рецепта"
             )
-    })
+    }
+    )
     public ResponseEntity<Recipes> addRecipes(@RequestBody Recipes recipes) {
-        Recipes createdRecipes = recipesService.addRecipes(recipes);
-        return ResponseEntity.ok(recipes);
+        return ResponseEntity.ok(recipesService.addRecipes(recipes));
     }
 
     @GetMapping("{recipesId}")
@@ -45,8 +49,13 @@ public class RecipesController {
             @ApiResponse(
                     responseCode = "200",
                     description = "рецепт был успешно найден"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "рецепт не найден"
             )
-    })
+    }
+    )
     public ResponseEntity<Recipes> getRecipes(@PathVariable Long recipesId) {
             return ResponseEntity.of(recipesService.getRecipes(recipesId));
 
@@ -75,8 +84,13 @@ public class RecipesController {
             @ApiResponse(
                     responseCode = "200",
                     description = "рецепт изменен"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "рецепт не найден"
             )
-    })
+    }
+    )
     public ResponseEntity<Recipes> editRecipes(@PathVariable long id, @RequestBody Recipes recipes) {
         if (recipes == null) {
             return ResponseEntity.notFound().build();
@@ -94,8 +108,13 @@ public class RecipesController {
             @ApiResponse(
                     responseCode = "200",
                     description = "рецепт удален"
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "удаляемый рецепт не найден"
             )
-    })
+    }
+    )
     public ResponseEntity<Void> deleteRecipes(@PathVariable long id) {
         if (recipesService.deleteRecipes(id)) {
             return ResponseEntity.ok().build();

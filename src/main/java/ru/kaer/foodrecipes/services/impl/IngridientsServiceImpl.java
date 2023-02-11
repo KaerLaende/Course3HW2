@@ -1,9 +1,9 @@
 package ru.kaer.foodrecipes.services.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.asm.TypeReference;
 import org.springframework.stereotype.Service;
 import ru.kaer.foodrecipes.exceptions.ValidationException;
 import ru.kaer.foodrecipes.model.Ingredient;
@@ -16,7 +16,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class IngridientsServiceImpl implements IngredientsService {
-    private final TreeMap<Long, Ingredient> ingredientMap = new TreeMap<>();
+    private Map<Long, Ingredient> ingredientMap = new TreeMap<>();
     private static long lastId = 0;
     private final ValidationService validationService;
     private final FileService fileService;
@@ -80,39 +80,15 @@ public class IngridientsServiceImpl implements IngredientsService {
         }
     }
     @Override
-    //TODO TypeReference подчеркивает красным (Type 'org.springframework.asm.TypeReference' does not have type parameters) HELP!?
     public void readFromFile() {
         try {
             String json = fileService.readIngredientsFromFile();
             ingredientMap = new ObjectMapper().readValue(json,
-                    new TypeReference<TreeMap<Long, Ingredient >> () {
+                    new TypeReference<Map<Long, Ingredient >>() {
             });
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }
 
-
-
-
-//    @Override
-//    public Ingredient changeIngredient(Long id, String name){
-//        allIgridientsMap.get(id).setIngridientName(name);
-//        return allIgridientsMap.get(id);
-//    }
-//    @Override
-//    public Ingredient changeIngredient(Long id, int count){
-//        allIgridientsMap.get(id).setCount(count);
-//        return allIgridientsMap.get(id);
-//    }
-//    @Override
-//    public Ingredient changeIngredient(Long id, String name, int count, String measureUnit){
-//        allIgridientsMap.get(id).setIngridientName(name);
-//        allIgridientsMap.get(id).setCount(count);
-//        allIgridientsMap.get(id).setMeasureUnit(measureUnit);
-//        return allIgridientsMap.get(id);
-//    }
-
-
-}

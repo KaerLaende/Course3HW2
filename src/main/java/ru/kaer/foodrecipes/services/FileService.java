@@ -1,5 +1,7 @@
 package ru.kaer.foodrecipes.services;
 
+import java.io.File;
+
 public interface FileService {
 
     boolean saveRecipesToFile(String json);
@@ -13,4 +15,8 @@ public interface FileService {
     String readIngredientsFromFile();
 
     boolean cleanIngredientsDataFile();
+
+    File getIngredientDataFile();
+
+    File getRecipesDataFile();
 }

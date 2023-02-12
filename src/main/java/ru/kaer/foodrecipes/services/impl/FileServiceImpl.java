@@ -1,18 +1,13 @@
 package ru.kaer.foodrecipes.services.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.kaer.foodrecipes.services.FileService;
 
-import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -84,6 +79,14 @@ public class FileServiceImpl implements FileService {
         } catch (IOException e) {
             return  false;
         }
+    }
+    @Override
+    public File getIngredientDataFile(){
+        return new File(dataFilePath+ "/"+ getRecipesDataFileName);
+    }
+    @Override
+    public File getRecipesDataFile(){
+        return new File(dataFilePath+ "/"+ getIngredientsDataFileName);
     }
 
 }

@@ -84,7 +84,7 @@ public class IngridientsServiceImpl implements IngredientsService {
         try {
             String json = fileService.readIngredientsFromFile();
             ingredientMap = new ObjectMapper().readValue(json,
-                    new TypeReference<Map<Long, Ingredient >>() {
+                    new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {
             e.printStackTrace();

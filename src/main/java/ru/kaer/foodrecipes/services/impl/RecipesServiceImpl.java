@@ -76,8 +76,8 @@ public class RecipesServiceImpl implements RecipesService {
     public void readFromFile(){
        try {
            String json = fileService.readRecipesFromFile();
-           allRecipesMap = new ObjectMapper().readValue(json, new TypeReference<TreeMap<Long, Recipes>>() {
-           });//Идея подсказывает что: Аргумент явного типа TreeMap<Long, Recipes> можно заменить на пустые<>? оставить?
+           allRecipesMap = new ObjectMapper().readValue(json, new TypeReference<>() {
+           });
        } catch (JsonProcessingException e) {
            e.printStackTrace();
        }

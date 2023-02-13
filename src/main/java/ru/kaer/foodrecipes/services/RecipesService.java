@@ -20,6 +20,5 @@ public interface RecipesService {
 
     void saveToFile();
 
-    //TODO TypeReference подчеркивает красным (Type 'org.springframework.asm.TypeReference' does not have type parameters) HELP!?
     void readFromFile();
 }

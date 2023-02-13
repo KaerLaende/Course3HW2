@@ -15,7 +15,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class IngridientsServiceImpl implements IngredientsService {
+public class IngredientsServiceImpl implements IngredientsService {
     private Map<Long, Ingredient> ingredientMap = new TreeMap<>();
     private static long lastId = 0;
     private final ValidationService validationService;

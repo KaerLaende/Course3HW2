@@ -85,10 +85,10 @@ public class RecipesServiceImpl implements RecipesService {
     /**
      * Загрузка данных на старте приложения
      */
-    @PostConstruct
-    private void init() {
-      readFromFile();
-    }
+//    @PostConstruct
+//    private void init() {
+//      readFromFile();
+//    }
 
 
 

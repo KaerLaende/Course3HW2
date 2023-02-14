@@ -1,14 +1,20 @@
 package ru.kaer.foodrecipes.services.impl;
 
-import lombok.AllArgsConstructor;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import ru.kaer.foodrecipes.model.Recipes;
 import ru.kaer.foodrecipes.services.FileService;
+import ru.kaer.foodrecipes.services.RecipesService;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -17,10 +23,10 @@ public class FileServiceImpl implements FileService {
     private String dataFilePath;
     @Value(value = "${name.of.recipe.data.file}")
     private String getRecipesDataFileName;
-//    private final Path pathRecipes = Path.of(dataFilePath,getRecipesDataFileName);
     @Value(value = "${name.of.ingredient.data.file}")
     private String getIngredientsDataFileName;
-//    private final Path pathIngredients = Path.of(dataFilePath,getIngredientsDataFileName);
+    RecipesService recipesService;
+
 
     @Override
     public boolean saveRecipesToFile(String json){
@@ -89,5 +95,50 @@ public class FileServiceImpl implements FileService {
     public File getRecipesDataFile(){
         return new File(dataFilePath+ "/"+getRecipesDataFileName);
     }
+
+    @Override
+    public void importRecipeDataFile(MultipartFile file) throws IOException {
+        cleanRecipesDataFile();//удаляем дата файл и создаем пустой новый
+        File dataFile = getRecipesDataFile();// в новый берем информацию из RecipesDataFile
+        try (FileOutputStream fos = new FileOutputStream(dataFile)) {  // открываем исходящий поток
+            IOUtils.copy(file.getInputStream(), fos); // берем входящий поток из @RequestParam и копируем в исходящий поток  'fos'
+        } catch (IOException e) {
+            throw new IOException();
+        }
+    }
+    @Override
+    public void importIngredientDataFile(MultipartFile file) throws IOException {
+        cleanIngredientsDataFile();
+        File dataFile = getIngredientDataFile();
+        try (FileOutputStream fos = new FileOutputStream(dataFile)) {
+            IOUtils.copy(file.getInputStream(), fos);
+        } catch (IOException e) {
+            throw new IOException();
+        }
+    }
+
+
+
+    @Override
+    public Path createTempFile(String suffix){
+        try {
+            return Files.createTempFile(Path.of(dataFilePath), "tempFile", suffix);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Override
+    public Path createRecipeTextFile() throws IOException {
+        Path path = createTempFile("recipes");
+        for (Recipes recipe : recipesService.getAllRecipes().values()) {
+            try (Writer writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
+                writer.append(recipe.toString());
+                writer.append("\n");
+            }
+        }
+        return path;
+    }
+
+
 
 }

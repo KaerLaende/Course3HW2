@@ -1,6 +1,7 @@
 package ru.kaer.foodrecipes.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,17 +13,22 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.kaer.foodrecipes.services.FileService;
 import ru.kaer.foodrecipes.services.impl.FileServiceImpl;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.io.*;
 
 @RestController
 @RequestMapping("/files")
 @Tag(name = "Файлы", description = "сохранить/загрузить")
 public class FilesController {
-    private final FileServiceImpl fileService;
+    private final FileService fileService;
 
-    public FilesController(FileServiceImpl fileService) {
+    public FilesController(FileService fileService) {
         this.fileService = fileService;
     }
 
@@ -56,21 +62,14 @@ public class FilesController {
 
     /**
      * Эндпоинт загрузки и замены файла с рецептами
+     *
      * @param file json с рецептами
      * @return заменяет сохраненный на жестком (локальном) диске файл с рецептами на новый
      */
-    @PostMapping("/importRecipes")
-    public ResponseEntity<Void> uploadRecipesFile(@RequestParam MultipartFile file) { //получаем файл
-        fileService.cleanRecipesDataFile(); //удаляем дата файл и создаем пустой новый
-        File fileRecipes = fileService.getRecipesDataFile(); // берем для него информацию из RecipesDataFile
-
-        try (BufferedInputStream bis = new BufferedInputStream(file.getInputStream()); // открываем buffered потоки
-             FileOutputStream fos = new FileOutputStream(fileRecipes);
-             BufferedOutputStream bos = new BufferedOutputStream(fos)) {
-            byte[] buffer = new byte[1024]; // определяем размер буфера
-            while(bis.read(buffer)>0){ // пока все не считаем
-                bos.write(buffer); // записываем
-            }
+    @PostMapping(value = "/importRecipes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> uploadRecipesFile(@RequestParam MultipartFile file) {
+        try {
+            fileService.importRecipeDataFile(file);
             return ResponseEntity.ok().build();
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,50 +79,56 @@ public class FilesController {
 
     /**
      * Эндпоинт загрузки и замены файла, с использованием бибилиотеки 'Apache Commons IO'
+     *
      * @param file json с с ингредиентами
      * @return заменяет сохраненный на жестком (локальном) диске файл с ингредиентами на новый
      */
     @PostMapping(value = "/importIngredients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> uploadIngredientsFile(@RequestParam MultipartFile file) { //получаем файл
-        fileService.cleanIngredientsDataFile(); //удаляем дата файл и создаем пустой новый
-        File fileIngredients = fileService.getIngredientDataFile(); // берем для него информацию из RecipesDataFile
-        try(FileOutputStream fos = new FileOutputStream(fileIngredients)){ // открываем исходящий поток
-            IOUtils.copy(file.getInputStream(),fos); // берем входящий поток из @RequestParam и копируем в исходящий поток  'fos'
-            return ResponseEntity.ok().build(); // OK, если все успешно
+        try {
+            fileService.importIngredientDataFile(file);
+            return ResponseEntity.ok().build();
         } catch (IOException e) {
             e.printStackTrace();
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // если что то пошло не так отправляем HttpStatus
     }
 
+    /**
+     * Эндпоинт выгрузки рецептов в текстовый файл
+     * @return файл с рецептами.txt
+     */
+    @GetMapping("exportInText")
+    @Operation(
+            summary = "Экспорт рецептов в файл в формате текста"
+    )
+    @ApiResponse(
+            responseCode = "200",
+            description = "Успешно выгрузили текстовый файл",
+            content = {
+                    @Content(
+                            mediaType = "text/plain"
+                    )
+            }
+    )
+    public ResponseEntity<Object> getRecipeTextFile() {
+        try {
+            Path path = fileService.createRecipeTextFile();
+            if (Files.size(path) != 0) {
+                InputStreamResource resource = new InputStreamResource(new FileInputStream(path.toFile()));
+                return ResponseEntity.ok()
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .contentLength(Files.size(path))
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"Recipes.txt\"")
+                        .body(resource);
+            } else {
+                return ResponseEntity.noContent().build();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(e.toString());
+        }
 
-//    public ResponseEntity<InputStreamResource> downloadRecipes() throws FileNotFoundException {
-//        File file = fileService.getRecipesDataFile();
-//        if (file.exists()) {
-//            InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-//            return ResponseEntity.ok()
-//                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                    .contentLength(file.length())
-//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"recipesLog.json\"")
-//                    .body(resource);
-//        } else {
-//            return ResponseEntity.noContent().build();
-//        }
-//    }
-//        public ResponseEntity<InputStreamResource> downloadIngredient() throws FileNotFoundException {
-//        File file = fileService.getIngredientDataFile();
-//        if (file.exists()){
-//            InputStreamResource resource= new InputStreamResource(new FileInputStream(file));
-//            return ResponseEntity.ok()
-//                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
-//                    .contentLength(file.length())
-//                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"ingredientLog.json\"")
-//                    .body(resource);
-//        }
-//        else {
-//            return ResponseEntity.noContent().build();
-//        }
-//    }
-
+    }
 
 }

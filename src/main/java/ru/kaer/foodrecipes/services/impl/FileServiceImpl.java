@@ -1,36 +1,38 @@
 package ru.kaer.foodrecipes.services.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import ru.kaer.foodrecipes.model.Recipes;
 import ru.kaer.foodrecipes.services.FileService;
+import ru.kaer.foodrecipes.services.RecipesService;
 
-import javax.annotation.PostConstruct;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.nio.file.StandardOpenOption;
 
 @Service
 public class FileServiceImpl implements FileService {
 
-    @Value("${path.to.data.file}")
+    @Value(value = "${path.to.data.files}")
     private String dataFilePath;
-    @Value("${name.to.recipe.data.file}")
+    @Value(value = "${name.of.recipe.data.file}")
     private String getRecipesDataFileName;
-    private final Path pathRecipes = Path.of(dataFilePath,getRecipesDataFileName);
-    @Value("${name.to.ingredient.data.file}")
+    @Value(value = "${name.of.ingredient.data.file}")
     private String getIngredientsDataFileName;
-    private final Path pathIngredients = Path.of(dataFilePath,getIngredientsDataFileName);
+    RecipesService recipesService;
+
 
     @Override
     public boolean saveRecipesToFile(String json){
         try {
             cleanRecipesDataFile();
-            Files.writeString(pathRecipes,json);
+            Files.writeString(Path.of(dataFilePath,getRecipesDataFileName),json);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,7 +42,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public String readRecipesFromFile(){
         try {
-            return  Files.readString(pathRecipes);
+            return  Files.readString(Path.of(dataFilePath,getRecipesDataFileName));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -48,8 +50,8 @@ public class FileServiceImpl implements FileService {
     @Override
     public boolean cleanRecipesDataFile(){
         try {
-            Files.deleteIfExists(pathRecipes);
-            Files.createFile(pathRecipes);
+            Files.deleteIfExists(Path.of(dataFilePath,getRecipesDataFileName));
+            Files.createFile(Path.of(dataFilePath,getRecipesDataFileName));
             return true;
         } catch (IOException e) {
             return  false;
@@ -60,7 +62,7 @@ public class FileServiceImpl implements FileService {
     public boolean saveIngredientsToFile(String json){
         try {
             cleanRecipesDataFile();
-            Files.writeString(pathIngredients,json);
+            Files.writeString(Path.of(dataFilePath,getIngredientsDataFileName),json);
             return true;
         } catch (IOException e) {
             e.printStackTrace();
@@ -70,7 +72,7 @@ public class FileServiceImpl implements FileService {
     @Override
     public String readIngredientsFromFile(){
         try {
-            return  Files.readString(pathIngredients);
+            return  Files.readString(Path.of(dataFilePath,getIngredientsDataFileName));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -78,12 +80,65 @@ public class FileServiceImpl implements FileService {
     @Override
     public boolean cleanIngredientsDataFile(){
         try {
-            Files.deleteIfExists(pathIngredients);
-            Files.createFile(pathIngredients);
+            Files.deleteIfExists(Path.of(dataFilePath,getIngredientsDataFileName));
+            Files.createFile(Path.of(dataFilePath,getIngredientsDataFileName));
             return true;
         } catch (IOException e) {
             return  false;
         }
     }
+    @Override
+    public File getIngredientDataFile(){
+        return new File(dataFilePath+ "/"+ getIngredientsDataFileName);
+    }
+    @Override
+    public File getRecipesDataFile(){
+        return new File(dataFilePath+ "/"+getRecipesDataFileName);
+    }
+
+    @Override
+    public void importRecipeDataFile(MultipartFile file) throws IOException {
+        cleanRecipesDataFile();//удаляем дата файл и создаем пустой новый
+        File dataFile = getRecipesDataFile();// в новый берем информацию из RecipesDataFile
+        try (FileOutputStream fos = new FileOutputStream(dataFile)) {  // открываем исходящий поток
+            IOUtils.copy(file.getInputStream(), fos); // берем входящий поток из @RequestParam и копируем в исходящий поток  'fos'
+        } catch (IOException e) {
+            throw new IOException();
+        }
+    }
+    @Override
+    public void importIngredientDataFile(MultipartFile file) throws IOException {
+        cleanIngredientsDataFile();
+        File dataFile = getIngredientDataFile();
+        try (FileOutputStream fos = new FileOutputStream(dataFile)) {
+            IOUtils.copy(file.getInputStream(), fos);
+        } catch (IOException e) {
+            throw new IOException();
+        }
+    }
+
+
+
+    @Override
+    public Path createTempFile(String suffix){
+        try {
+            return Files.createTempFile(Path.of(dataFilePath), "tempFile", suffix);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    @Override
+    public Path createRecipeTextFile() throws IOException {
+        Path path = createTempFile("recipes");
+        for (Recipes recipe : recipesService.getAllRecipes().values()) {
+            try (Writer writer = Files.newBufferedWriter(path, StandardOpenOption.APPEND)) {
+                writer.append(recipe.toString());
+                writer.append("\n");
+            }
+        }
+        return path;
+    }
+
+
 
 }

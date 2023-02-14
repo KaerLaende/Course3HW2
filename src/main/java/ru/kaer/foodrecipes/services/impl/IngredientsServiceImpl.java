@@ -15,7 +15,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class IngridientsServiceImpl implements IngredientsService {
+public class IngredientsServiceImpl implements IngredientsService {
     private Map<Long, Ingredient> ingredientMap = new TreeMap<>();
     private static long lastId = 0;
     private final ValidationService validationService;
@@ -84,7 +84,7 @@ public class IngridientsServiceImpl implements IngredientsService {
         try {
             String json = fileService.readIngredientsFromFile();
             ingredientMap = new ObjectMapper().readValue(json,
-                    new TypeReference<Map<Long, Ingredient >>() {
+                    new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {
             e.printStackTrace();

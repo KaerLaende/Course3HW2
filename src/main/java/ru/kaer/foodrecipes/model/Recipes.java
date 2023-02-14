@@ -12,6 +12,25 @@ import java.util.List;
 public class Recipes {
     private String name;
     private int cookingTime;
+    private int numberOfServings;
     private List<Ingredient> ingredients = new ArrayList<>();
     private List<String> steps = new LinkedList<>();
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder=new StringBuilder();
+        stringBuilder.append(name.toUpperCase()).append("\n");
+        stringBuilder.append("Время готовки: ").append(cookingTime).append(" минут\n");
+        stringBuilder.append("Количество порций: ").append(numberOfServings).append(" шт.\n");
+        stringBuilder.append("Ингредиенты:\n");
+        for (Ingredient ingredient:ingredients) {
+            stringBuilder.append("• ").append(ingredient).append("\n");
+        }
+        stringBuilder.append("Инструкция по приготовлению:\n");
+
+        for (int i = 0; i < steps.size(); i++) {
+            stringBuilder.append(i + 1).append(" - ").append(steps.get(i)).append("\n");
+        }
+        return stringBuilder.toString();
+    }
 }

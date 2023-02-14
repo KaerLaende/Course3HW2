@@ -10,5 +10,9 @@ public class Ingredient {
     private int count;
     private String measureUnit;
 
+    @Override
+    public String toString() {
+        return  ingredientName + '-' + count + ' '+ measureUnit+'.';
+    }
 }
 
